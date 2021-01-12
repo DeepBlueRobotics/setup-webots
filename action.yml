@@ -9,7 +9,7 @@ runs:
           pkgName=webots_2021a_amd64.deb
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           pkgName=webots-R2021a_setup.exe
-        elif [ '${{ runner.os }}' = 'macOS' ]; then
+        elif [ '${{ runner.os }}' = 'MacOS' ]; then
           pkgName=webots-R2021a.dmg
         else
           echo "Unrecognized runner OS"
@@ -27,7 +27,7 @@ runs:
           echo "MESA_GL_VERSION_OVERRIDE=3.3" >> $GITHUB_ENV
           echo "${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin" >> $GITHUB_PATH
           echo "RUN_WEBOTS=webots" >> $GITHUB_ENV
-        elif [ '${{ runner.os }}' = 'macOS' ]; then
+        elif [ '${{ runner.os }}' = 'MacOS' ]; then
           mkdir ~/Mount
           mkdir -p ~/Applications
           hdiutil attach $pkgName -noverify -mountpoint ~/Mount
