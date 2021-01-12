@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - name: Setup Webots
-      uses: actions/setup-webots@main
+      uses: actions/setup-webots
 
     - name: Run Webots
       run: webots --sysinfo
