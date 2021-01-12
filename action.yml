@@ -17,7 +17,7 @@ runs:
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
           webotsHome="/usr/local/webots"
-          webotsBinDir="${webotsHome}/bin"
+          webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="xvfb-run -a ${webotsBin} ${webotsOptions}"
           pkgName=webots_2021a_amd64.deb
