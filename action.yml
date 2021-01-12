@@ -2,9 +2,22 @@ name: 'Setup Webots'
 description: 'Installs Webots on the runner'
 runs:
   using: 'composite'
+  outputs:
+    bashCmd:
+      description: "Start of a command line in bash which will run webots on all runners with options suitable for headless execution. This is also put in the RUN_WEBOTS environment variable."
+    home:
+      description: "Path of the Webots installation, suitable for putting in WEBOTS_HOME environment variable"
+    binDir:
+      description: "Directory containing the Webots executable, suitable for adding to the PATH environment variable"
+    bin:
+      description: "Full path to the Webots executable, suitable for running webots (albeit not successfully on ubuntu)"
+    "="${webotsHome}/bin"
+          webotsBin="${webotsBinDir}/webots"
+          runWebots="xvfb-run -a ${webotsBin} ${webotsOptions}"
   steps:
     - name: 'Download and Install Webots'
       run: |
+        webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
           pkgName=webots_2021a_amd64.deb
         elif [ '${{ runner.os }}' = 'Windows' ]; then
@@ -16,17 +29,22 @@ runs:
           exit -1
         fi
         curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
-        runWebots="webots --no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
           sudo apt update
           sudo apt install --yes ./webots_2021a_amd64.deb
-          runWebots="xvfb-run -a $runWebots"
+          webotsHome="/usr/local/webots"
+          webotsBinDir="${webotsHome}/bin"
+          webotsBin="${webotsBinDir}/webots"
+          webotsBashCmd="xvfb-run -a ${webotsBin} ${webotsOptions}"
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           ./$pkgName //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
           curl -L -o Mesa.7z https://downloads.fdossena.com/geth.php?r=mesa64-latest
           7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin Mesa.7z
           echo "MESA_GL_VERSION_OVERRIDE=3.3" >> $GITHUB_ENV
-          echo "${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin" >> $GITHUB_PATH
+          webotsHome="${LOCALAPPDATA}/Programs/Webots"
+          webotsBinDir="${webotsHome}/msys64/mingw64/bin"
+          webotsBin="${webotsBinDir}/webots"
+          webotsBashCmd="${webotsBin} ${webotsOptions}"
         elif [ '${{ runner.os }}' = 'macOS' ]; then
           mkdir ~/Mount
           mkdir -p ~/Applications
@@ -35,8 +53,15 @@ runs:
           hdiutil detach ~/Mount
           rmdir ~/Mount
           echo "$HOME/Applications/Webots.app" >> $GITHUB_PATH
+          webotsHome="$HOME/Applications/Webots.app"
+          webotsBinDir="${webotsHome}"
+          webotsBin="${webotsBinDir}/webots"
+          webotsBashCmd="${webotsBin} ${webotsOptions}"
         fi
-        echo "RUN_WEBOTS=$runWebots" >> $GITHUB_ENV
-        echo "LIBGL_ALWAYS_SOFTWARE=true" >> $GITHUB_ENV
-        echo "WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=true" >> $GITHUB_ENV
+        webotsBashCmd="LIBGL_ALWAYS_SOFTWARE=true WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=true $webotsBashCmd"
+        echo "::set-output name=home::${webotsHome}"
+        echo "::set-output name=binDir::${webotsBinDir}"
+        echo "::set-output name=bin::${webotsBin}"
+        echo "::set-output name=bashCmd::${webotsBashCmd}"
+        echo "RUN_WEBOTS=$webotsBashCmd" >> $GITHUB_ENV
       shell: bash

@@ -16,11 +16,22 @@ jobs:
 
     steps:
     - name: Setup Webots
+        id: setupWebots
       uses: DeepBlueRobotics/setup-webots@main
 
     - name: Run Webots
       run: $RUN_WEBOTS --sysinfo
       shell: bash
+
+    - name: Display outputs
+      run: |
+        echo "RUN_WEBOTS: $RUN_WEBOTS"
+        echo "steps.setupWebots.outputs.bashCmd: ${{ steps.setupWebots.outputs.bashCmd }}"
+        echo "steps.setupWebots.outputs.home: ${{ steps.setupWebots.outputs.home }}"
+        echo "steps.setupWebots.outputs.binDir: ${{ steps.setupWebots.outputs.binDir }}"
+        echo "steps.setupWebots.outputs.bin: ${{ steps.setupWebots.outputs.bin }}"
+      shell: bash
+
 
   release:
     # Only release from the main branch
