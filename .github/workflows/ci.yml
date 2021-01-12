@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Setup Webots
-        id: setupWebots
+      id: setupWebots
       uses: DeepBlueRobotics/setup-webots@main
 
     - name: Run Webots
