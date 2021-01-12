@@ -1,0 +1,26 @@
+name: 'Setup Webots'
+description: 'Installs Webots on the runner'
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Download Webots'
+      run: |
+        if [ '${{ runner.os }}' = 'Linux' ]; then
+          curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/webots_2021a_amd64.deb"
+          sudo apt update
+          sudo apt install --yes ./${{ matrix.webotsPkg }} 
+        elif [ '${{ runner.os }}' = 'Windows' ]; then
+        elif [ '${{ runner.os }}' = 'macOS' ]; then
+        else 
+        fi
+      shell: bash
+    - name: 'Install Webots'
+      run: |
+        if [ '${{ runner.os }}' = 'Linux' ]; then
+          sudo apt update
+          sudo apt install --yes ./webots_2021a_amd64.deb
+        elif [ '${{ runner.os }}' = 'Windows' ]; then
+        elif [ '${{ runner.os }}' = 'macOS' ]; then
+        else 
+        fi
+      shell: bash
