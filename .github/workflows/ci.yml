@@ -22,3 +22,27 @@ jobs:
       run: $RUN_WEBOTS --sysinfo
       shell: bash
 
+  release:
+    # Only release from the main branch
+    if: github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Compute next semantic version
+      id: version
+      uses: paulhatch/semantic-version@v3.2
+      with:
+        branch: "main"
+
+    - name: Tag
+      run: git tag ${{ steps.version.outputs.version_tag }}
+    
+    - name: Push
+      run: git push origin ${{ steps.version.outputs.version_tag }}
+
