@@ -18,4 +18,4 @@ jobs:
       uses: DeepBlueRobotics/setup-webots@main
 
     - name: Run Webots
-      run: webots --sysinfo
+      run: $RUN_WEBOTS --sysinfo
