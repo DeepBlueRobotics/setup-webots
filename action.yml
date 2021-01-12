@@ -25,7 +25,8 @@ runs:
           webotsHome="${LOCALAPPDATA}/Programs/Webots"
           webotsBinDir="${webotsHome}/msys64/mingw64/bin"
           webotsBin="${webotsBinDir}/webots"
-          webotsBashCmd="MESA_GL_VERSION_OVERRIDE=3.3 ${webotsBin} ${webotsOptions}"
+          webotsBashCmd="${webotsBin} ${webotsOptions}"
+          echo "MESA_GL_VERSION_OVERRIDE=3.3" >> $GITHUB_ENV
           pkgName=webots-R2021a_setup.exe
         elif [ '${{ runner.os }}' = 'macOS' ]; then
           webotsHome="$HOME/Applications/Webots.app"
@@ -37,8 +38,9 @@ runs:
           echo "Unrecognized runner OS"
           exit -1
         fi
-        webotsBashCmd="LIBGL_ALWAYS_SOFTWARE=true WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=true $webotsBashCmd"
         echo "RUN_WEBOTS=$webotsBashCmd" >> $GITHUB_ENV
+        echo "LIBGL_ALWAYS_SOFTWARE=true" >> $GITHUB_ENV
+        echo "WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=true" >> $GITHUB_ENV
         echo "::set-output name=home::${webotsHome}"
         echo "::set-output name=binDir::${webotsBinDir}"
         echo "::set-output name=bin::${webotsBin}"
