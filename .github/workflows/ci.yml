@@ -19,3 +19,5 @@ jobs:
 
     - name: Run Webots
       run: $RUN_WEBOTS --sysinfo
+      shell: bash
+
