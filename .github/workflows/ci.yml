@@ -16,7 +16,7 @@ jobs:
     steps:
     - name: Get Webots cache path
       id: getWebotsCachePath
-      uses: DeepBlueRobotics/setup-webots@$Format: %h$
+      uses: DeepBlueRobotics/setup-webots@$Id$
       with:
         install: false
     
@@ -29,7 +29,7 @@ jobs:
 
     - name: Setup Webots
       id: setupWebots
-      uses: DeepBlueRobotics/setup-webots@$Format: %h$
+      uses: DeepBlueRobotics/setup-webots@$Id$
 
     - name: Run Webots
       run: $RUN_WEBOTS --sysinfo
