@@ -11,13 +11,14 @@ jobs:
       fail-fast: false
       matrix:
         # os: [ ubuntu-latest, macos-lastest, windows-latest ]
-        os: [ ubuntu-latest, windows-latest ]
+        # os: [ ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest ]
     runs-on: ${{ matrix.os }}
 
     steps:
     - name: Setup Webots
       id: setupWebots
-      uses: "DeepBlueRobotics/setup-webots@${{ github.sha }}"
+      uses: DeepBlueRobotics/setup-webots@main
 
     - name: Run Webots
       run: $RUN_WEBOTS --sysinfo
