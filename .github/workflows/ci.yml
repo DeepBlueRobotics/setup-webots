@@ -18,7 +18,7 @@ jobs:
     steps:
     - name: Setup Webots
       id: setupWebots
-      uses: DeepBlueRobotics/setup-webots@main
+      uses: DeepBlueRobotics/setup-webots@${{ github.sha }}
 
     - name: Run Webots
       run: $RUN_WEBOTS --sysinfo
