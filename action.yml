@@ -1,34 +1,51 @@
 name: 'Setup Webots'
 description: 'Installs Webots on the runner'
+inputs:
+  install:
+    description: "Whether to actually install or just compute the various outputs. Useful for computing path to cache."
+    required: false
+    default: true
 outputs:
   bashCmd:
     description: "Start of a command line in bash which will run webots on all runners with options suitable for headless execution. This is also put in the RUN_WEBOTS environment variable."
+    value: ${{ steps.setup.outputs.bashCmd }}
+  cachePath:
+    description: "Path to cache."
+    value: ${{ steps.setup.outputs.cachePath }}
   home:
     description: "Path of the Webots installation, suitable for putting in WEBOTS_HOME environment variable"
+    value: ${{ steps.setup.outputs.home }}
   binDir:
     description: "Directory containing the Webots executable, suitable for adding to the PATH environment variable"
+    value: ${{ steps.setup.outputs.binDir }}
   bin:
     description: "Full path to the Webots executable, suitable for running webots directly (albeit probably not succesfully, that's what bashCmd or $RUN_WEBOTS is for)"
+    value: ${{ steps.setup.outputs.bin }}
+
 runs:
   using: 'composite'
   steps:
     - name: 'Download and Install Webots'
+      id: setup
       run: |
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
+          webotsCachePath="$HOME/webots-snap"
           webotsHome="/snap/webots/current/usr/share/webots"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="xvfb-run -a ${webotsBin} ${webotsOptions}"
         elif [ '${{ runner.os }}' = 'Windows' ]; then
-          webotsHome="${LOCALAPPDATA}/Programs/Webots"
+          webotsCachePath="${LOCALAPPDATA}/Programs/Webots"
+          webotsHome="${webotsCachePath}"
           webotsBinDir="${webotsHome}/msys64/mingw64/bin"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="${webotsBin} ${webotsOptions}"
           echo "MESA_GL_VERSION_OVERRIDE=3.3" >> $GITHUB_ENV
           pkgName=webots-R2021a_setup.exe
         elif [ '${{ runner.os }}' = 'macOS' ]; then
-          webotsHome="$HOME/Applications/Webots.app"
+          webotsCachePath="$HOME/Applications/Webots.app"
+          webotsHome="${webotsCachePath}"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="${webotsBin} ${webotsOptions}"
@@ -40,26 +57,44 @@ runs:
         echo "RUN_WEBOTS=$webotsBashCmd" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=true" >> $GITHUB_ENV
         echo "WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=true" >> $GITHUB_ENV
+        echo "::set-output name=cachePath::${webotsCachePath}"
         echo "::set-output name=home::${webotsHome}"
         echo "::set-output name=binDir::${webotsBinDir}"
         echo "::set-output name=bin::${webotsBin}"
         echo "::set-output name=bashCmd::${webotsBashCmd}"
-        if [ '${{ runner.os }}' = 'Linux' ]; then
-          sudo apt update
-          sudo apt-get install --fix-missing lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3
-          sudo snap install webots
-        elif [ '${{ runner.os }}' = 'Windows' ]; then
-          curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
-          ./$pkgName //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
-          curl -L -o Mesa.7z https://downloads.fdossena.com/geth.php?r=mesa64-latest
-          7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin Mesa.7z
-        elif [ '${{ runner.os }}' = 'macOS' ]; then
-          curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
-          mkdir ~/Mount
-          mkdir -p ~/Applications
-          hdiutil attach $pkgName -noverify -mountpoint ~/Mount
-          cp -R ~/Mount/Webots.app ~/Applications
-          hdiutil detach ~/Mount
-          rmdir ~/Mount
+        if [ '${{ inputs.install }}' = 'true' ]; then
+          if [ '${{ runner.os }}' = 'Linux' ]; then
+            sudo apt update
+            sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3
+            if [ ! -e "$webotsCachePath" ]; then
+              mkdir -p "$webotsCachePath"
+              snap download --stable --target-directory="$webotsCachePath" webots
+            else
+              echo "Webots snap already downloaded (probably from cache)"
+            fi
+            sudo snap ack "$webotsCachePath"/*.assert
+            sudo snap install "$webotsCachePath"/*.snap
+          elif [ '${{ runner.os }}' = 'Windows' ]; then
+            if [ ! -e "$webotsHome" ]; then
+              curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
+              ./$pkgName //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
+              curl -L -o Mesa.7z https://downloads.fdossena.com/geth.php?r=mesa64-latest
+              7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin Mesa.7z
+            else
+              echo "Webots already installed (probably from cache)"
+            fi
+          elif [ '${{ runner.os }}' = 'macOS' ]; then
+            if [ ! -e "$webotsHome" ]; then
+              curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
+              mkdir ~/Mount
+              mkdir -p ~/Applications
+              hdiutil attach $pkgName -noverify -mountpoint ~/Mount
+              cp -R ~/Mount/Webots.app ~/Applications
+              hdiutil detach ~/Mount
+              rmdir ~/Mount
+            else
+              echo "Webots already installed (probably from cache)"
+            fi
+          fi
         fi
       shell: bash
