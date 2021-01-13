@@ -24,7 +24,7 @@ jobs:
     - name: Cache Webots
       uses: actions/cache@v2
       with:
-        path: ${{ steps.getWebotsHome.outputs.cachePath }}
+        path: ${{ steps.getWebotsCachePath.outputs.cachePath }}
         key: webots-v2021a-install-${{ runner.os }}
 
 
