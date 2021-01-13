@@ -8,16 +8,22 @@ inputs:
 outputs:
   bashCmd:
     description: "Start of a command line in bash which will run webots on all runners with options suitable for headless execution. This is also put in the RUN_WEBOTS environment variable."
+    value: ${{ steps.setup.outputs.bashCmd }}
   home:
     description: "Path of the Webots installation, suitable for putting in WEBOTS_HOME environment variable"
+    value: ${{ steps.setup.outputs.home }}
   binDir:
     description: "Directory containing the Webots executable, suitable for adding to the PATH environment variable"
+    value: ${{ steps.setup.outputs.binDir }}
   bin:
     description: "Full path to the Webots executable, suitable for running webots directly (albeit probably not succesfully, that's what bashCmd or $RUN_WEBOTS is for)"
+    value: ${{ steps.setup.outputs.bin }}
+    
 runs:
   using: 'composite'
   steps:
     - name: 'Download and Install Webots'
+      id: setup
       run: |
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
