@@ -18,7 +18,7 @@ outputs:
   bin:
     description: "Full path to the Webots executable, suitable for running webots directly (albeit probably not succesfully, that's what bashCmd or $RUN_WEBOTS is for)"
     value: ${{ steps.setup.outputs.bin }}
-    
+
 runs:
   using: 'composite'
   steps:
@@ -56,7 +56,7 @@ runs:
         echo "::set-output name=binDir::${webotsBinDir}"
         echo "::set-output name=bin::${webotsBin}"
         echo "::set-output name=bashCmd::${webotsBashCmd}"
-        if [ '${{ inputs.install }}' = 'true']; then
+        if [ '${{ inputs.install }}' = 'true' ]; then
           if [ '${{ runner.os }}' = 'Linux' ]; then
             sudo apt update
             sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3
