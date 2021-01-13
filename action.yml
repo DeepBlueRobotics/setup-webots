@@ -48,6 +48,7 @@ runs:
         curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
         if [ '${{ runner.os }}' = 'Linux' ]; then
           # sudo apt update
+          sudo apt-get install libglu1
           tar xjf $pkgName
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           ./$pkgName //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
