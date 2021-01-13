@@ -17,8 +17,8 @@ jobs:
     - name: Get Webots home
       id: getWebotsHome
       uses: DeepBlueRobotics/setup-webots@add-using-tar
-        with:
-          install: false
+      with:
+        install: false
     
     - name: Cache Webots
       uses: actions/cache@v2
