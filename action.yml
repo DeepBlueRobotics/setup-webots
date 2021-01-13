@@ -45,7 +45,7 @@ runs:
         echo "::set-output name=bin::${webotsBin}"
         echo "::set-output name=bashCmd::${webotsBashCmd}"
         if [ '${{ runner.os }}' = 'Linux' ]; then
-          sudo apt-get install libglu1
+          sudo apt-get install libglu1 libxcb-xinerama0
           sudo snap install webots
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
