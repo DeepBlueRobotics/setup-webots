@@ -1,5 +1,10 @@
 name: 'Setup Webots'
 description: 'Installs Webots on the runner'
+inputs:
+  install:
+    description: "Whether to actually install or just compute the various outputs. Useful for computing path to cache."
+    required: false
+    default: true
 outputs:
   bashCmd:
     description: "Start of a command line in bash which will run webots on all runners with options suitable for headless execution. This is also put in the RUN_WEBOTS environment variable."
@@ -45,21 +50,37 @@ runs:
         echo "::set-output name=binDir::${webotsBinDir}"
         echo "::set-output name=bin::${webotsBin}"
         echo "::set-output name=bashCmd::${webotsBashCmd}"
-        curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
-        if [ '${{ runner.os }}' = 'Linux' ]; then
-          sudo apt update
-          sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3
-          tar xjf $pkgName
-        elif [ '${{ runner.os }}' = 'Windows' ]; then
-          ./$pkgName //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
-          curl -L -o Mesa.7z https://downloads.fdossena.com/geth.php?r=mesa64-latest
-          7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin Mesa.7z
-        elif [ '${{ runner.os }}' = 'macOS' ]; then
-          mkdir ~/Mount
-          mkdir -p ~/Applications
-          hdiutil attach $pkgName -noverify -mountpoint ~/Mount
-          cp -R ~/Mount/Webots.app ~/Applications
-          hdiutil detach ~/Mount
-          rmdir ~/Mount
+        if [ '${{ inputs.install }}' = 'true']; then
+          if [ '${{ runner.os }}' = 'Linux' ]; then
+            sudo apt update
+            sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3
+            if [ ! -e "$webotsHome" ]; then
+              curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
+              tar xjf $pkgName
+            else
+              echo "Webots already installed (probably from cache)"
+            fi
+          elif [ '${{ runner.os }}' = 'Windows' ]; then
+            if [ ! -e "$webotsHome" ]; then
+              curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
+              ./$pkgName //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
+              curl -L -o Mesa.7z https://downloads.fdossena.com/geth.php?r=mesa64-latest
+              7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin Mesa.7z
+            else
+              echo "Webots already installed (probably from cache)"
+            fi
+          elif [ '${{ runner.os }}' = 'macOS' ]; then
+            if [ ! -e "$webotsHome" ]; then
+              curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
+              mkdir ~/Mount
+              mkdir -p ~/Applications
+              hdiutil attach $pkgName -noverify -mountpoint ~/Mount
+              cp -R ~/Mount/Webots.app ~/Applications
+              hdiutil detach ~/Mount
+              rmdir ~/Mount
+            else
+              echo "Webots already installed (probably from cache)"
+            fi
+          fi
         fi
       shell: bash
