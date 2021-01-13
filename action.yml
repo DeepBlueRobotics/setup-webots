@@ -16,7 +16,6 @@ runs:
       run: |
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
-          apt rdepends libwavpack1
           webotsHome="$PWD/webots"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
