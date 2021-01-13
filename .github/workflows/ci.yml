@@ -11,14 +11,26 @@ jobs:
       fail-fast: false
       matrix:
         # os: [ ubuntu-latest, macos-lastest, windows-latest ]
-        # os: [ ubuntu-latest, windows-latest ]
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
 
     steps:
+    - name: Get Webots home
+      id: getWebotsHome
+      uses: DeepBlueRobotics/setup-webots@add-using-tar
+      with:
+        install: false
+    
+    - name: Cache Webots
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.getWebotsHome.outputs.home }}
+        key: webots-v2021a-install-${{ runner.os }}
+
+
     - name: Setup Webots
       id: setupWebots
-      uses: DeepBlueRobotics/setup-webots@main
+      uses: DeepBlueRobotics/setup-webots@add-using-tar
 
     - name: Run Webots
       run: $RUN_WEBOTS --sysinfo
