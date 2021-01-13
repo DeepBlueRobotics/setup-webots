@@ -20,7 +20,7 @@ runs:
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="xvfb-run -a ${webotsBin} ${webotsOptions}"
-          pkgName=webots_2021a_amd64.deb
+          pkgName=webots-R2021a-x86-64_ubuntu-18.04.tar.bz2
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           webotsHome="${LOCALAPPDATA}/Programs/Webots"
           webotsBinDir="${webotsHome}/msys64/mingw64/bin"
@@ -47,8 +47,8 @@ runs:
         echo "::set-output name=bashCmd::${webotsBashCmd}"
         curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
         if [ '${{ runner.os }}' = 'Linux' ]; then
-          sudo apt update
-          sudo apt install --yes ./webots_2021a_amd64.deb
+          # sudo apt update
+          tar xjf $pkgName
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           ./$pkgName //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
           curl -L -o Mesa.7z https://downloads.fdossena.com/geth.php?r=mesa64-latest
