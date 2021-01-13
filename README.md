@@ -4,8 +4,8 @@ This GitHub action can be used in a [GitHub workflow](https://docs.github.com/en
 
 ```
     steps:
-    - name: Get Webots home
-      id: getWebotsHome
+    - name: Get Webots cache path
+      id: getWebotsCachePath
       uses: DeepBlueRobotics/setup-webots@main
         with:
           install: false
@@ -13,7 +13,7 @@ This GitHub action can be used in a [GitHub workflow](https://docs.github.com/en
     - name: Cache Webots
       uses: actions/cache@v2
       with:
-        path: ${{ steps.getWebotsHome.outputs.home }}
+        path: ${{ steps.getWebotsCachePath.outputs.cachePath }}
         key: webots-v2021a-install-${{ runner.os }}
 
     - name: Setup Webots

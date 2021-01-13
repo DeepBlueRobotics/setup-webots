@@ -9,6 +9,9 @@ outputs:
   bashCmd:
     description: "Start of a command line in bash which will run webots on all runners with options suitable for headless execution. This is also put in the RUN_WEBOTS environment variable."
     value: ${{ steps.setup.outputs.bashCmd }}
+  cachePath:
+    description: "Path to cache."
+    value: ${{ steps.setup.outputs.cachePath }}
   home:
     description: "Path of the Webots installation, suitable for putting in WEBOTS_HOME environment variable"
     value: ${{ steps.setup.outputs.home }}
@@ -27,20 +30,22 @@ runs:
       run: |
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
-          webotsHome="$PWD/webots"
+          webotsCachePath="$HOME/webots-snap"
+          webotsHome="/snap/webots/current/usr/share/webots"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="xvfb-run -a ${webotsBin} ${webotsOptions}"
-          pkgName=webots-R2021a-x86-64_ubuntu-18.04.tar.bz2
         elif [ '${{ runner.os }}' = 'Windows' ]; then
-          webotsHome="${LOCALAPPDATA}/Programs/Webots"
+          webotsCachePath="${LOCALAPPDATA}/Programs/Webots"
+          webotsHome="${webotsCachePath}"
           webotsBinDir="${webotsHome}/msys64/mingw64/bin"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="${webotsBin} ${webotsOptions}"
           echo "MESA_GL_VERSION_OVERRIDE=3.3" >> $GITHUB_ENV
           pkgName=webots-R2021a_setup.exe
         elif [ '${{ runner.os }}' = 'macOS' ]; then
-          webotsHome="$HOME/Applications/Webots.app"
+          webotsCachePath="$HOME/Applications/Webots.app"
+          webotsHome="${webotsCachePath}"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="${webotsBin} ${webotsOptions}"
@@ -52,6 +57,7 @@ runs:
         echo "RUN_WEBOTS=$webotsBashCmd" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=true" >> $GITHUB_ENV
         echo "WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=true" >> $GITHUB_ENV
+        echo "::set-output name=cachePath::${webotsCachePath}"
         echo "::set-output name=home::${webotsHome}"
         echo "::set-output name=binDir::${webotsBinDir}"
         echo "::set-output name=bin::${webotsBin}"
@@ -60,12 +66,14 @@ runs:
           if [ '${{ runner.os }}' = 'Linux' ]; then
             sudo apt update
             sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3
-            if [ ! -e "$webotsHome" ]; then
-              curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
-              tar xjf $pkgName
+            if [ ! -e "$webotsCachePath" ]; then
+              mkdir -p "$webotsCachePath"
+              snap download --stable --target-directory="$webotsCachePath" webots
             else
-              echo "Webots already installed (probably from cache)"
+              echo "Webots snap already downloaded (probably from cache)"
             fi
+            sudo snap ack "$webotsCachePath"/*.assert
+            sudo snap install "$webotsCachePath"/*.snap
           elif [ '${{ runner.os }}' = 'Windows' ]; then
             if [ ! -e "$webotsHome" ]; then
               curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
