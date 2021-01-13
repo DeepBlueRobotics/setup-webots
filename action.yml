@@ -16,11 +16,10 @@ runs:
       run: |
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
-          webotsHome="/usr/local/webots"
+          webotsHome="/snap/webots/current/usr/share/webots"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="xvfb-run -a ${webotsBin} ${webotsOptions}"
-          pkgName=webots_2021a_amd64.deb
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           webotsHome="${LOCALAPPDATA}/Programs/Webots"
           webotsBinDir="${webotsHome}/msys64/mingw64/bin"
