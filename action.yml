@@ -73,7 +73,7 @@ runs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         curl -L -o "${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}" --create-dirs "https://github.com/cyberbotics/webots/releases/download/${{ inputs.webotsVersion }}/${{ steps.setup.outputs.pkgName }}"
-        if [ '${{ runner.os }}' = 'Linux']
+        if [ '${{ runner.os }}' = 'Linux']; then
           chmod +x "${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}"
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           curl -L -o "${{ steps.setup.outputs.cachePath }}/Mesa.7z" --create-dirs https://downloads.fdossena.com/geth.php?r=mesa64-latest
