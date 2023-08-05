@@ -24,7 +24,7 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: 'Setup Webots Environment'
+    - name: Setup Webots Environment
       id: setup
       run: |
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
@@ -64,8 +64,8 @@ runs:
         echo "LIBGL_ALWAYS_SOFTWARE=true" >> $GITHUB_ENV
         echo "WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=true" >> $GITHUB_ENV
       shell: bash
-    - name: 'Cache Webots' # This will try to load Webots from the cache and save it to the cache after it's installed
-      uses: actions/cache@v3
+    - name: Load Webots From Cache
+      uses: actions/cache/restore@v3
       with:
         path: ${{ steps.setup.outputs.cachePath }}
         key: ${{ runner.os }}-webots-${{ inputs.webotsVersion }}
@@ -77,7 +77,12 @@ runs:
           curl -L -o "${{ steps.setup.outputs.cachePath }}/Mesa.7z" --create-dirs https://downloads.fdossena.com/geth.php?r=mesa64-latest
         fi
       shell: bash
-    - name: 'Install Webots'
+    - name: Cache Webots # Explicitly cache Webots rather than waiting for the post-run cache step to prevent cache misses from job failures
+      uses: actions/cache/save@v3
+      with:
+        path: ${{ steps.setup.outputs.cachePath }}
+        key: ${{ runner.os }}-webots-${{ inputs.webotsVersion }}
+    - name: Install Webots
       run: |
         cachedWebotsBin="${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}"
         if [ '${{ runner.os }}' = 'Linux' ]; then
