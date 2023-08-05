@@ -85,6 +85,7 @@ runs:
           sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3 libegl1
           tar xjf $cachedWebotsBin -C "$HOME"
           chmod +x "${{ steps.setup.outputs.bin }}"
+          echo "QT_DEBUG_PLUGINS=1" >> $GITHUB_ENV
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           "$cachedWebotsBin" //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
           7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin "${{ steps.setup.outputs.cachePath }}/Mesa.7z"
