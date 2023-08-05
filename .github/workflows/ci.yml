@@ -14,6 +14,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+
     - name: Setup Webots
       id: setupWebots
       uses: ./
