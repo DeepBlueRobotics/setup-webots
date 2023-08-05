@@ -83,8 +83,7 @@ runs:
         if [ '${{ runner.os }}' = 'Linux' ]; then
           sudo apt update
           sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3
-          mkdir -p "${{ steps.setup.outputs.home }}"
-          tar xjf $cachedWebotsBin -C "${{ steps.setup.outputs.home }}"
+          tar xjf $cachedWebotsBin -C "$HOME"
           chmod +x "${{ steps.setup.outputs.bin }}"
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           "$cachedWebotsBin" //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
