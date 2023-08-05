@@ -100,4 +100,5 @@ runs:
           echo "Unrecognized runner OS"
           exit -1
         fi
+        ls -al ${{ steps.setup.outputs.binDir }}
       shell: bash
