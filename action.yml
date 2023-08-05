@@ -45,7 +45,7 @@ runs:
           pkgName=webots-${{ inputs.webotsVersion }}_setup.exe
         elif [ '${{ runner.os }}' = 'macOS' ]; then
           webotsCachePath="$HOME/cache/webots"
-          webotsHome="$HOME/Applications/Webots.app"
+          webotsHome="$HOME/Applications/Webots.app/Contents/MacOS"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="${webotsBin} ${webotsOptions}"
