@@ -66,11 +66,12 @@ runs:
       shell: bash
     - name: Load Webots From Cache
       uses: actions/cache/restore@v3
+      id: loadCache
       with:
         path: ${{ steps.setup.outputs.cachePath }}
         key: ${{ runner.os }}-webots-${{ inputs.webotsVersion }}
     - name: 'Download Webots'
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.loadCache.outputs.cache-hit != 'true'
       run: |
         curl -L -o "${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}" --create-dirs "https://github.com/cyberbotics/webots/releases/download/${{ inputs.webotsVersion }}/${{ steps.setup.outputs.pkgName }}"
         if [ '${{ runner.os }}' = 'Windows' ]; then
