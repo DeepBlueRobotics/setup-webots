@@ -30,7 +30,7 @@ runs:
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
           webotsCachePath="$HOME/cache/webots"
-          webotsHome="/usr/local/webots"
+          webotsHome="$HOME/webots"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="xvfb-run -a ${webotsBin} ${webotsOptions}"
@@ -83,7 +83,7 @@ runs:
         if [ '${{ runner.os }}' = 'Linux' ]; then
           sudo apt update
           sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3 libegl1 libqt5gui5
-          tar xjf $cachedWebotsBin -C "/usr/local"
+          tar xjf $cachedWebotsBin -C "$HOME"
           chmod +x "${{ steps.setup.outputs.bin }}"
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           "$cachedWebotsBin" //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
