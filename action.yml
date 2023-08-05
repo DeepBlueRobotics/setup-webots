@@ -29,23 +29,23 @@ runs:
       run: |
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
-          webotsCachePath="$HOME/webots"
-          webotsHome="${webotsCachePath}"
+          webotsCachePath="$HOME/cache/webots"
+          webotsHome="$HOME/webots"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="xvfb-run -a ${webotsBin} ${webotsOptions}"
           pkgName=webots-${{ inputs.webotsVersion }}-x86-64.tar.bz2
         elif [ '${{ runner.os }}' = 'Windows' ]; then
-          webotsCachePath="${LOCALAPPDATA}/Programs/Webots"
-          webotsHome="${webotsCachePath}"
+          webotsCachePath="${USERPROFILE}/cache/webots"
+          webotsHome="${LOCALAPPDATA}/Programs/Webots"
           webotsBinDir="${webotsHome}/msys64/mingw64/bin"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="${webotsBin} ${webotsOptions}"
           echo "MESA_GL_VERSION_OVERRIDE=3.3" >> $GITHUB_ENV
           pkgName=webots-${{ inputs.webotsVersion }}_setup.exe
         elif [ '${{ runner.os }}' = 'macOS' ]; then
-          webotsCachePath="$HOME/Applications/Webots.app"
-          webotsHome="${webotsCachePath}"
+          webotsCachePath="$HOME/cache/webots"
+          webotsHome="$HOME/Applications/Webots.app"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="${webotsBin} ${webotsOptions}"
@@ -85,8 +85,8 @@ runs:
           sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3
           tar xjf $cachedWebotsBin -C "${{ steps.setup.outputs.home }}"
         elif [ '${{ runner.os }}' = 'Windows' ]; then
-          $cachedWebotsBin //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
-          7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin ${{ steps.setup.outputs.cachePath }}/Mesa.7z
+          "$cachedWebotsBin" //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
+          7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin "${{ steps.setup.outputs.cachePath }}/Mesa.7z"
         elif [ '${{ runner.os }}' = 'macOS' ]; then
           mkdir ~/Mount
           mkdir -p ~/Applications
