@@ -73,9 +73,7 @@ runs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         curl -L -o "${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}" --create-dirs "https://github.com/cyberbotics/webots/releases/download/${{ inputs.webotsVersion }}/${{ steps.setup.outputs.pkgName }}"
-        if [ '${{ runner.os }}' = 'Linux']; then
-          chmod +x "${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}"
-        elif [ '${{ runner.os }}' = 'Windows' ]; then
+        if [ '${{ runner.os }}' = 'Windows' ]; then
           curl -L -o "${{ steps.setup.outputs.cachePath }}/Mesa.7z" --create-dirs https://downloads.fdossena.com/geth.php?r=mesa64-latest
         fi
       shell: bash
@@ -87,6 +85,7 @@ runs:
           sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3
           mkdir -p "${{ steps.setup.outputs.home }}"
           tar xjf $cachedWebotsBin -C "${{ steps.setup.outputs.home }}"
+          chmod +x "${{ steps.setup.outputs.bin }}"
         elif [ '${{ runner.os }}' = 'Windows' ]; then
           "$cachedWebotsBin" //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
           7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin "${{ steps.setup.outputs.cachePath }}/Mesa.7z"
