@@ -1,10 +1,9 @@
 name: 'Setup Webots'
 description: 'Installs Webots on the runner'
 inputs:
-  install:
-    description: "Whether to actually install or just compute the various outputs. Useful for computing path to cache."
-    required: false
-    default: true
+  webotsVersion:
+    description: "Version of Webots to install."
+    required: true
 outputs:
   bashCmd:
     description: "Start of a command line in bash which will run webots on all runners with options suitable for headless execution. This is also put in the RUN_WEBOTS environment variable."
@@ -25,76 +24,86 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: 'Download and Install Webots'
+    - name: Setup Webots Environment
       id: setup
       run: |
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
         if [ '${{ runner.os }}' = 'Linux' ]; then
-          webotsCachePath="$HOME/webots-snap"
-          webotsHome="/snap/webots/current/usr/share/webots"
+          webotsCachePath="$HOME/cache/webots"
+          webotsHome="$HOME/webots"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="xvfb-run -a ${webotsBin} ${webotsOptions}"
+          pkgName=webots-${{ inputs.webotsVersion }}-x86-64.tar.bz2
         elif [ '${{ runner.os }}' = 'Windows' ]; then
-          webotsCachePath="${LOCALAPPDATA}/Programs/Webots"
-          webotsHome="${webotsCachePath}"
+          webotsCachePath="${USERPROFILE}/cache/webots"
+          webotsHome="${LOCALAPPDATA}/Programs/Webots"
           webotsBinDir="${webotsHome}/msys64/mingw64/bin"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="${webotsBin} ${webotsOptions}"
           echo "MESA_GL_VERSION_OVERRIDE=3.3" >> $GITHUB_ENV
-          pkgName=webots-R2021a_setup.exe
+          pkgName=webots-${{ inputs.webotsVersion }}_setup.exe
         elif [ '${{ runner.os }}' = 'macOS' ]; then
-          webotsCachePath="$HOME/Applications/Webots.app"
-          webotsHome="${webotsCachePath}"
+          webotsCachePath="$HOME/cache/webots"
+          webotsHome="$HOME/Applications/Webots.app/Contents/MacOS"
           webotsBinDir="${webotsHome}"
           webotsBin="${webotsBinDir}/webots"
           webotsBashCmd="${webotsBin} ${webotsOptions}"
-          pkgName=webots-R2021a.dmg
+          pkgName=webots-${{ inputs.webotsVersion }}.dmg
         else
           echo "Unrecognized runner OS"
           exit -1
         fi
+        echo "bashCmd=$webotsBashCmd" >> $GITHUB_OUTPUT
+        echo "cachePath=${webotsCachePath}" >> $GITHUB_OUTPUT
+        echo "home=${webotsHome}" >> $GITHUB_OUTPUT
+        echo "binDir=${webotsBinDir}" >> $GITHUB_OUTPUT
+        echo "bin=${webotsBin}" >> $GITHUB_OUTPUT
+        echo "pkgName=$pkgName" >> $GITHUB_OUTPUT
         echo "RUN_WEBOTS=$webotsBashCmd" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=true" >> $GITHUB_ENV
         echo "WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=true" >> $GITHUB_ENV
-        echo "::set-output name=cachePath::${webotsCachePath}"
-        echo "::set-output name=home::${webotsHome}"
-        echo "::set-output name=binDir::${webotsBinDir}"
-        echo "::set-output name=bin::${webotsBin}"
-        echo "::set-output name=bashCmd::${webotsBashCmd}"
-        if [ '${{ inputs.install }}' = 'true' ]; then
-          if [ '${{ runner.os }}' = 'Linux' ]; then
-            sudo apt update
-            sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3
-            if [ ! -e "$webotsCachePath" ]; then
-              mkdir -p "$webotsCachePath"
-              snap download --stable --target-directory="$webotsCachePath" webots
-            else
-              echo "Webots snap already downloaded (probably from cache)"
-            fi
-            sudo snap ack "$webotsCachePath"/*.assert
-            sudo snap install "$webotsCachePath"/*.snap
-          elif [ '${{ runner.os }}' = 'Windows' ]; then
-            if [ ! -e "$webotsHome" ]; then
-              curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
-              ./$pkgName //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
-              curl -L -o Mesa.7z https://downloads.fdossena.com/geth.php?r=mesa64-latest
-              7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin Mesa.7z
-            else
-              echo "Webots already installed (probably from cache)"
-            fi
-          elif [ '${{ runner.os }}' = 'macOS' ]; then
-            if [ ! -e "$webotsHome" ]; then
-              curl -L -O "https://github.com/cyberbotics/webots/releases/download/R2021a/$pkgName"
-              mkdir ~/Mount
-              mkdir -p ~/Applications
-              hdiutil attach $pkgName -noverify -mountpoint ~/Mount
-              cp -R ~/Mount/Webots.app ~/Applications
-              hdiutil detach ~/Mount
-              rmdir ~/Mount
-            else
-              echo "Webots already installed (probably from cache)"
-            fi
-          fi
+      shell: bash
+    - name: Load Webots From Cache
+      uses: actions/cache/restore@v3
+      id: cache
+      with:
+        path: ${{ steps.setup.outputs.cachePath }}
+        key: ${{ runner.os }}-webots-${{ inputs.webotsVersion }}
+    - name: 'Download Webots'
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        curl -L -o "${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}" --create-dirs "https://github.com/cyberbotics/webots/releases/download/${{ inputs.webotsVersion }}/${{ steps.setup.outputs.pkgName }}"
+        if [ '${{ runner.os }}' = 'Windows' ]; then
+          curl -L -o "${{ steps.setup.outputs.cachePath }}/Mesa.7z" --create-dirs https://downloads.fdossena.com/geth.php?r=mesa64-latest
+        fi
+      shell: bash
+    - name: Cache Webots # Explicitly cache Webots rather than waiting for the post-run cache step to prevent cache misses from job failures
+      uses: actions/cache/save@v3
+      if: steps.cache.outputs.cache-hit != 'true'
+      with:
+        path: ${{ steps.setup.outputs.cachePath }}
+        key: ${{ runner.os }}-webots-${{ inputs.webotsVersion }}
+    - name: Install Webots
+      run: |
+        cachedWebotsBin="${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}"
+        if [ '${{ runner.os }}' = 'Linux' ]; then
+          sudo apt update
+          sudo apt-get install lsb-release g++ make libavcodec-extra libglu1-mesa libxkbcommon-x11-dev execstack libusb-dev libxcb-keysyms1 libxcb-image0 libxcb-icccm4 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcomposite-dev libxtst6 libnss3 libegl1 libqt5gui5
+          tar xjf $cachedWebotsBin -C "$HOME"
+          chmod +x "${{ steps.setup.outputs.bin }}"
+        elif [ '${{ runner.os }}' = 'Windows' ]; then
+          "$cachedWebotsBin" //VERYSILENT //SP- //SUPPRESSMSGBOXES //CURRENTUSER
+          7z e -o${LOCALAPPDATA}/Programs/Webots/msys64/mingw64/bin "${{ steps.setup.outputs.cachePath }}/Mesa.7z"
+        elif [ '${{ runner.os }}' = 'macOS' ]; then
+          mkdir ~/Mount
+          mkdir -p ~/Applications
+          hdiutil attach $cachedWebotsBin -noverify -mountpoint ~/Mount
+          cp -R ~/Mount/Webots.app ~/Applications
+          hdiutil detach ~/Mount
+          rmdir ~/Mount
+        else
+          echo "Unrecognized runner OS"
+          exit -1
         fi
       shell: bash

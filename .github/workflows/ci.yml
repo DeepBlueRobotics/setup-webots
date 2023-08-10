@@ -7,29 +7,21 @@ on:
 
 jobs:
   test:
-    strategy: 
+    strategy:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Get Webots cache path
-      id: getWebotsCachePath
-      uses: DeepBlueRobotics/setup-webots@main
-      with:
-        install: false
-    
-    - name: Cache Webots
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.getWebotsCachePath.outputs.cachePath }}
-        key: webots-v2021a-install-${{ runner.os }}
-
+    - name: Checkout source
+      uses: actions/checkout@v3
 
     - name: Setup Webots
       id: setupWebots
-      uses: DeepBlueRobotics/setup-webots@main
+      uses: ./
+      with:
+        webotsVersion: R2023b
 
     - name: Run Webots
       run: $RUN_WEBOTS --sysinfo
@@ -44,7 +36,6 @@ jobs:
         echo "steps.setupWebots.outputs.bin: ${{ steps.setupWebots.outputs.bin }}"
         echo "steps.setupWebots.outputs.cachePath: ${{ steps.setupWebots.outputs.cachePath }}"
       shell: bash
-
 
   release:
     # Only release from the main branch
@@ -66,7 +57,6 @@ jobs:
 
     - name: Tag
       run: git tag ${{ steps.version.outputs.version_tag }}
-    
+
     - name: Push
       run: git push origin ${{ steps.version.outputs.version_tag }}
-
