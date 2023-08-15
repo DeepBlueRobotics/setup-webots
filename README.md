@@ -17,5 +17,5 @@ This GitHub action can be used in a [GitHub workflow](https://docs.github.com/en
 In a step that uses the `bash` shell, `$RUN_WEBOTS` will expand to the start of a command line that will start Webots on any of the aforementioned runners with the `--no-rendering --stdout --stderr --minimize --batch` options. Those options allow Webots to run in a headless environment and redirect the controller's output/error to stdout/stderr.
 
 Note:
- - On the macos-latest runner, Webots takes over **8 minutes** to start, so be patient if using that runner.
+ - On the macos-latest runner, Webots can take **10-15 minutes** to start, so be patient if using that runner.
  - This action has a few outputs that can be used to set environment variables like `WEBOTS_HOME` or `PATH` if desired. See [action.yml](action.yml) for details. You don't need to do that if you are just running Webots. `$RUN_WEBOTS` should be sufficient for that purpose.
