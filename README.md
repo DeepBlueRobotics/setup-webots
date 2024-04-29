@@ -1,6 +1,6 @@
 # setup-webots
 
-This GitHub action can be used in a [GitHub workflow](https://docs.github.com/en/free-pro-team@latest/actions) to setup [Webots](https://cyberbotics.com/) version 2021a on ubuntu-latest, windows-latest, or macos-latest GitHub-hosted runner. Usage:
+This GitHub action can be used in a [GitHub workflow](https://docs.github.com/en/free-pro-team@latest/actions) to setup a version of [Webots](https://cyberbotics.com/) on ubuntu-latest, windows-latest, or macos-latest GitHub-hosted runner. Usage:
 
 ``` YAML
     - name: Setup Webots
