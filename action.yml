@@ -64,12 +64,13 @@ runs:
         echo "LIBGL_ALWAYS_SOFTWARE=true" >> $GITHUB_ENV
         echo "WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=true" >> $GITHUB_ENV
       shell: bash
-    - name: Load Webots From Cache
-      uses: actions/cache/restore@v3
+    - name: Cache Webots
+      uses: actions/cache@v4
       id: cache
       with:
         path: ${{ steps.setup.outputs.cachePath }}
         key: ${{ runner.os }}-webots-${{ inputs.webotsVersion }}
+        save-always: true
     - name: 'Download Webots'
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
@@ -78,12 +79,6 @@ runs:
           curl -L -o "${{ steps.setup.outputs.cachePath }}/Mesa.7z" --create-dirs https://downloads.fdossena.com/geth.php?r=mesa64-latest
         fi
       shell: bash
-    - name: Cache Webots # Explicitly cache Webots rather than waiting for the post-run cache step to prevent cache misses from job failures
-      uses: actions/cache/save@v3
-      if: steps.cache.outputs.cache-hit != 'true'
-      with:
-        path: ${{ steps.setup.outputs.cachePath }}
-        key: ${{ runner.os }}-webots-${{ inputs.webotsVersion }}
     - name: Install Webots
       run: |
         cachedWebotsBin="${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}"
