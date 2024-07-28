@@ -14,6 +14,21 @@ This GitHub action can be used in a [GitHub workflow](https://docs.github.com/en
       shell: bash
 ```
 
+Alternatively, the `webotsTag` option can be used to install a specific tag from the Webots repository (such as a nightly build).
+
+``` YAML
+    - name: Setup Webots
+      id: setupWebots
+      uses: DeepBlueRobotics/setup-webots@main
+      with:
+        webotsVersion: R2024a # Set this to your Webots version
+        webotsTag: nightly_26_7_2024
+
+    - name: Run Webots
+      run: $RUN_WEBOTS /path/to/worlds/MyWorld.wbt
+      shell: bash
+```
+
 In a step that uses the `bash` shell, `$RUN_WEBOTS` will expand to the start of a command line that will start Webots on any of the aforementioned runners with the `--no-rendering --stdout --stderr --minimize --batch` options. Those options allow Webots to run in a headless environment and redirect the controller's output/error to stdout/stderr.
 
 Note:
