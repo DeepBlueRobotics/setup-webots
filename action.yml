@@ -4,6 +4,11 @@ inputs:
   webotsVersion:
     description: "Version of Webots to install."
     required: true
+  webotsTag:
+    description: "Optionally specify a specific tag from the Webots repository to install. (Defaults to webotsVersion)"
+    required: false
+    default: ${{ inputs.webotsVersion }}
+
 outputs:
   bashCmd:
     description: "Start of a command line in bash which will run webots on all runners with options suitable for headless execution. This is also put in the RUN_WEBOTS environment variable."
@@ -69,12 +74,12 @@ runs:
       id: cache
       with:
         path: ${{ steps.setup.outputs.cachePath }}
-        key: ${{ runner.os }}-webots-${{ inputs.webotsVersion }}
+        key: ${{ runner.os }}-webots-${{ inputs.webotsTag }}
         save-always: true
     - name: 'Download Webots'
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        curl -L -o "${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}" --create-dirs "https://github.com/cyberbotics/webots/releases/download/${{ inputs.webotsVersion }}/${{ steps.setup.outputs.pkgName }}"
+        curl -L -o "${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}" --create-dirs "https://github.com/cyberbotics/webots/releases/download/${{ inputs.webotsTag }}/${{ steps.setup.outputs.pkgName }}"
         if [ '${{ runner.os }}' = 'Windows' ]; then
           curl -L -o "${{ steps.setup.outputs.cachePath }}/Mesa.7z" --create-dirs https://downloads.fdossena.com/geth.php?r=mesa64-latest
         fi

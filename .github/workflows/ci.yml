@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  testStableWebots:
     strategy:
       fail-fast: false
       matrix:
@@ -22,6 +22,38 @@ jobs:
       uses: ./
       with:
         webotsVersion: R2023b
+
+    - name: Run Webots
+      run: $RUN_WEBOTS --sysinfo
+      shell: bash
+
+    - name: Display outputs
+      run: |
+        echo "RUN_WEBOTS: $RUN_WEBOTS"
+        echo "steps.setupWebots.outputs.bashCmd: ${{ steps.setupWebots.outputs.bashCmd }}"
+        echo "steps.setupWebots.outputs.home: ${{ steps.setupWebots.outputs.home }}"
+        echo "steps.setupWebots.outputs.binDir: ${{ steps.setupWebots.outputs.binDir }}"
+        echo "steps.setupWebots.outputs.bin: ${{ steps.setupWebots.outputs.bin }}"
+        echo "steps.setupWebots.outputs.cachePath: ${{ steps.setupWebots.outputs.cachePath }}"
+      shell: bash
+
+  testNightlyWebots:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+
+    - name: Setup Webots
+      id: setupWebots
+      uses: ./
+      with:
+        webotsVersion: R2024a
+        webotsTag: nightly_26_7_2024
 
     - name: Run Webots
       run: $RUN_WEBOTS --sysinfo
