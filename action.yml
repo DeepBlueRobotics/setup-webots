@@ -7,7 +7,7 @@ inputs:
   webotsTag:
     description: "Optionally specify a specific tag from the Webots repository to install. (Defaults to webotsVersion)"
     required: false
-    default: ${{ inputs.webotsVersion }}
+    default: ''
 
 outputs:
   bashCmd:
@@ -25,6 +25,9 @@ outputs:
   bin:
     description: "Full path to the Webots executable, suitable for running webots directly (albeit probably not succesfully, that's what bashCmd or $RUN_WEBOTS is for)"
     value: ${{ steps.setup.outputs.bin }}
+  tag:
+    description: "The git tag of the Webots release being used"
+    value: ${{ steps.setup.outputs.bin }}
 
 runs:
   using: 'composite'
@@ -33,6 +36,11 @@ runs:
       id: setup
       run: |
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
+        if [ -n '${{ inputs.webotsTag }}' ]
+          webotsTag=${{ inputs.webotsTag }}
+        else
+          webotsTag=${{ inputs.webotsVersion }}
+        fi
         if [ '${{ runner.os }}' = 'Linux' ]; then
           webotsCachePath="$HOME/cache/webots"
           webotsHome="$HOME/webots"
@@ -65,6 +73,7 @@ runs:
         echo "binDir=${webotsBinDir}" >> $GITHUB_OUTPUT
         echo "bin=${webotsBin}" >> $GITHUB_OUTPUT
         echo "pkgName=$pkgName" >> $GITHUB_OUTPUT
+        echo "tag=$webotsTag" >> $GITHUB_OUTPUT
         echo "RUN_WEBOTS=$webotsBashCmd" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=true" >> $GITHUB_ENV
         echo "WEBOTS_DISABLE_SAVE_SCREEN_PERSPECTIVE_ON_CLOSE=true" >> $GITHUB_ENV
@@ -74,12 +83,12 @@ runs:
       id: cache
       with:
         path: ${{ steps.setup.outputs.cachePath }}
-        key: ${{ runner.os }}-webots-${{ inputs.webotsTag }}
+        key: ${{ runner.os }}-webots-${{ steps.setup.outputs.tag }}
         save-always: true
     - name: 'Download Webots'
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        curl -L -o "${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}" --create-dirs "https://github.com/cyberbotics/webots/releases/download/${{ inputs.webotsTag }}/${{ steps.setup.outputs.pkgName }}"
+        curl -L -o "${{ steps.setup.outputs.cachePath }}/${{ steps.setup.outputs.pkgName }}" --create-dirs "https://github.com/cyberbotics/webots/releases/download/${{ steps.setup.outputs.tag }}/${{ steps.setup.outputs.pkgName }}"
         if [ '${{ runner.os }}' = 'Windows' ]; then
           curl -L -o "${{ steps.setup.outputs.cachePath }}/Mesa.7z" --create-dirs https://downloads.fdossena.com/geth.php?r=mesa64-latest
         fi
