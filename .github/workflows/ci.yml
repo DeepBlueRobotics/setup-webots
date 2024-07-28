@@ -6,11 +6,15 @@ on:
     branches: [ main ]
 
 jobs:
-  testStableWebots:
+  test:
     strategy:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
+        include:
+          - webotsVersion: R2023b
+          - webotsVersion: R2024a
+            webotsTag: nightly_26_7_2024
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -21,39 +25,8 @@ jobs:
       id: setupWebots
       uses: ./
       with:
-        webotsVersion: R2023b
-
-    - name: Run Webots
-      run: $RUN_WEBOTS --sysinfo
-      shell: bash
-
-    - name: Display outputs
-      run: |
-        echo "RUN_WEBOTS: $RUN_WEBOTS"
-        echo "steps.setupWebots.outputs.bashCmd: ${{ steps.setupWebots.outputs.bashCmd }}"
-        echo "steps.setupWebots.outputs.home: ${{ steps.setupWebots.outputs.home }}"
-        echo "steps.setupWebots.outputs.binDir: ${{ steps.setupWebots.outputs.binDir }}"
-        echo "steps.setupWebots.outputs.bin: ${{ steps.setupWebots.outputs.bin }}"
-        echo "steps.setupWebots.outputs.cachePath: ${{ steps.setupWebots.outputs.cachePath }}"
-      shell: bash
-
-  testNightlyWebots:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
-    runs-on: ${{ matrix.os }}
-
-    steps:
-    - name: Checkout source
-      uses: actions/checkout@v3
-
-    - name: Setup Webots
-      id: setupWebots
-      uses: ./
-      with:
-        webotsVersion: R2024a
-        webotsTag: nightly_26_7_2024
+        webotsVersion: ${{ matrix.webotsVersion }}
+        webotsTag: ${{ contains(matrix, 'webotsTag') && matrix.webotsTag || '' }}
 
     - name: Run Webots
       run: $RUN_WEBOTS --sysinfo
@@ -72,7 +45,7 @@ jobs:
   release:
     # Only release from the main branch
     if: github.ref == 'refs/heads/main'
-    needs: [testStableWebots, testNightlyWebots]
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
