@@ -11,8 +11,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
+        webotsVersion: [ R2023b, R2024a ]
         include:
-          - webotsVersion: R2023b
           - webotsVersion: R2024a
             webotsTag: nightly_26_7_2024
     runs-on: ${{ matrix.os }}
