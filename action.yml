@@ -29,8 +29,8 @@ outputs:
   bin:
     description: "Full path to the Webots executable, suitable for running webots directly (albeit probably not succesfully, that's what bashCmd or $RUN_WEBOTS is for)"
     value: ${{ steps.setup.outputs.bin }}
-  tag:
-    description: "The git tag of the Webots release being used"
+  baseUrl:
+    description: "The location of the Webots release being used"
     value: ${{ steps.setup.outputs.bin }}
 
 runs:
@@ -51,7 +51,7 @@ runs:
           fi
           webotsBaseUrl=${{ inputs.webotsBaseUrl }}
         else
-          webotsBaseUrl='https://github.com/cyberbotics/webots/releases/download/${{ inputs.webotsTag }}'
+          webotsBaseUrl="https://github.com/cyberbotics/webots/releases/download/$webotsTag"
         fi
         if [ '${{ runner.os }}' = 'Linux' ]; then
           webotsCachePath="$HOME/cache/webots"
