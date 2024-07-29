@@ -14,7 +14,7 @@ This GitHub action can be used in a [GitHub workflow](https://docs.github.com/en
       shell: bash
 ```
 
-Alternatively, the `webotsTag` option can be used to install a specific tag from the Webots repository (such as a nightly build).
+Alternatively, the `webotsTag` option can be used to install a specific tag from the official Webots repository (such as a nightly build).
 
 ``` YAML
     - name: Setup Webots
@@ -23,6 +23,23 @@ Alternatively, the `webotsTag` option can be used to install a specific tag from
       with:
         webotsVersion: R2024a # Set this to your Webots version
         webotsTag: nightly_26_7_2024
+
+    - name: Run Webots
+      run: $RUN_WEBOTS /path/to/worlds/MyWorld.wbt
+      shell: bash
+```
+
+Alternatively, the `webotsBaseUrl` option can be used to install from an arbitrary location (such as
+a fork of the official repo). Note that if you use the `webotsBaseUrl` option, the `webotsTag`
+option will be ignored, so the URL should contain any needed tag information.
+
+``` YAML
+    - name: Setup Webots
+      id: setupWebots
+      uses: DeepBlueRobotics/setup-webots@main
+      with:
+        webotsVersion: R2024a # Set this to your Webots version
+        webotsBaseUrl: https://github.com/DeepBlueRobotics/webots/releases/download/R2024a_DeepBlueSim_2024_07_28
 
     - name: Run Webots
       run: $RUN_WEBOTS /path/to/worlds/MyWorld.wbt
