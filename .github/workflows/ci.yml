@@ -38,6 +38,23 @@ jobs:
             webotsRepository: DeepBlueRobotics/webots
           - webotsVersion: R2023b
             webotsBaseUrl: 'https://github.com/DeepBlueRobotics/webots/releases/download/R2024a_DeepBlueSim_2024_07_28'
+          # Non-default values are adequately tested on ubuntu-latest
+          - os: windows-latest
+            webotsTag: nightly_26_7_2024
+          - os: windows-latest
+            webotsTag: R2024a_DeepBlueSim_2024_07_28
+          - os: windows-latest
+            webotsRepository: DeepBlueRobotics/webots
+          - os: windows-latest
+            webotsBaseUrl: 'https://github.com/DeepBlueRobotics/webots/releases/download/R2024a_DeepBlueSim_2024_07_28'
+          - os: macos-latest
+            webotsTag: nightly_26_7_2024
+          - os: macos-latest
+            webotsTag: R2024a_DeepBlueSim_2024_07_28
+          - os: macos-latest
+            webotsRepository: DeepBlueRobotics/webots
+          - os: macos-latest
+            webotsBaseUrl: 'https://github.com/DeepBlueRobotics/webots/releases/download/R2024a_DeepBlueSim_2024_07_28'
     runs-on: ${{ matrix.os }}
 
     steps:
