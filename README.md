@@ -11,10 +11,6 @@ This GitHub action can be used in a [GitHub workflow](https://docs.github.com/en
       uses: DeepBlueRobotics/setup-webots@main
       with:
         webotsVersion: R2023b # Set this to your Webots version
-
-    - name: Run Webots
-      run: $RUN_WEBOTS /path/to/worlds/MyWorld.wbt
-      shell: bash
 ```
 
 ### Install a Nightly Prerelease from the Official Webots Repository
@@ -25,10 +21,6 @@ This GitHub action can be used in a [GitHub workflow](https://docs.github.com/en
       with:
         webotsVersion: R2024a # Set this to your Webots version
         webotsTag: nightly_26_7_2024
-
-    - name: Run Webots
-      run: $RUN_WEBOTS /path/to/worlds/MyWorld.wbt
-      shell: bash
 ```
 
 ### Install a Custom Release from a Webots Fork
@@ -40,10 +32,6 @@ This GitHub action can be used in a [GitHub workflow](https://docs.github.com/en
         webotsVersion: R2024a # Set this to your Webots version
         webotsTag: R2024a_DeepBlueSim_2024_07_28
         webotsRepository: DeepBlueRobotics/webots
-
-    - name: Run Webots
-      run: $RUN_WEBOTS /path/to/worlds/MyWorld.wbt
-      shell: bash
 ```
 
 ### Install a Custom Release from an Arbitrary URL
@@ -57,13 +45,16 @@ will be ignored, so the URL should contain any needed tag information.
       with:
         webotsVersion: R2024a # Set this to your Webots version
         webotsBaseUrl: https://github.com/DeepBlueRobotics/webots/releases/download/R2024a_DeepBlueSim_2024_07_28
+```
 
+## Running Webots
+
+``` YAML
     - name: Run Webots
       run: $RUN_WEBOTS /path/to/worlds/MyWorld.wbt
       shell: bash
 ```
 
-## Running Webots
 In a step that uses the `bash` shell, `$RUN_WEBOTS` will expand to the start of a command line that will start Webots on any of the aforementioned runners with the `--no-rendering --stdout --stderr --minimize --batch` options. Those options allow Webots to run in a headless environment and redirect the controller's output/error to stdout/stderr.
 
 Note:
