@@ -31,7 +31,7 @@ outputs:
     value: ${{ steps.setup.outputs.bin }}
   baseUrl:
     description: "The location of the Webots release being used"
-    value: ${{ steps.setup.outputs.bin }}
+    value: ${{ steps.setup.outputs.baseUrl }}
 
 runs:
   using: 'composite'
