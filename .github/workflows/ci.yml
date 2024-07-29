@@ -98,7 +98,7 @@ jobs:
 
     - name: Compute next semantic version
       id: version
-      uses: paulhatch/semantic-version@v3.2
+      uses: paulhatch/semantic-version@v5.4.0
       with:
         branch: "main"
 
