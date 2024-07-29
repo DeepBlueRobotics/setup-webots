@@ -24,7 +24,7 @@ jobs:
           - webotsVersion: R2023b
             webotsTag: nightly_26_7_2024
           - webotsVersion: R2023b
-            webotsBaseUrl: https://github.com/DeepBlueRobotics/webots/releases/download/R2024a_DeepBlueSim_2024_07_28
+            webotsBaseUrl: 'https://github.com/DeepBlueRobotics/webots/releases/download/R2024a_DeepBlueSim_2024_07_28'
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -37,6 +37,7 @@ jobs:
       with:
         webotsVersion: ${{ matrix.webotsVersion }}
         webotsTag: ${{ matrix.webotsTag || '' }}
+        webotsUrl: ${{ matrix.webotsUrl || '' }}
 
     - name: Run Webots
       run: $RUN_WEBOTS --sysinfo
