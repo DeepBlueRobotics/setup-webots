@@ -16,6 +16,9 @@ jobs:
         webotsBaseUrl: [ 'https://github.com/DeepBlueRobotics/webots/releases/download/R2024a_DeepBlueSim_2024_07_28', '' ]
         exclude:
           - webotsVersion: R2024a
+            webotsTag: ''
+            webotsBaseUrl: ''
+          - webotsVersion: R2024a
             webotsTag: nightly_26_7_2024
             os: windows-latest
           - webotsVersion: R2023b
