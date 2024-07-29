@@ -5,11 +5,15 @@ inputs:
     description: "Version of Webots to install."
     required: true
   webotsTag:
-    description: "Optionally specify a specific tag from the Webots repository to install. (Defaults to webotsVersion)"
+    description: "Optionally specify a specific tag from the Webots repository to install. (Defaults to <webotsVersion>)"
+    required: false
+    default: ''
+  webotsRepository:
+    description: "Optionally specify a specific repository to download Webots from (Defaults to cyberbotics/webots)"
     required: false
     default: ''
   webotsBaseUrl:
-    description: "Optionally specify a base URL containing the distribution files (Defaults to https://github.com/cyberbotics/webots/releases/download/<webotsTag>)"
+    description: "Optionally specify a base URL containing the distribution files (Defaults to https://github.com/<webotsRepository>/releases/download/<webotsTag>)"
     required: false
     default: ''
 
@@ -40,19 +44,21 @@ runs:
       id: setup
       run: |
         webotsOptions="--no-rendering --stdout --stderr --minimize --batch"
-        if [ -n '${{ inputs.webotsTag }}' ]; then
-          webotsTag=${{ inputs.webotsTag }}
-        else
-          webotsTag=${{ inputs.webotsVersion }}
-        fi
+        webotsTag=${{ inputs.webotsTag || inputs.webotsVersion }}
+        webotsRepository=${{ inputs.webotsRepository || 'cyberbotics/webots' }}
+
         if [ -n '${{ inputs.webotsBaseUrl }}' ]; then
           if [ -n '${{ inputs.webotsTag }}' ]; then
             echo "WARNING: Ignoring webotsTag=${{ inputs.webotsTag }} because webotsBaseUrl was specified."
           fi
+          if [ -n '${{ inputs.webotsRepository }}' ]; then
+            echo "WARNING: Ignoring webotsRepository=${{ inputs.webotsRepository }} because webotsBaseUrl was specified."
+          fi
           webotsBaseUrl=${{ inputs.webotsBaseUrl }}
         else
-          webotsBaseUrl="https://github.com/cyberbotics/webots/releases/download/$webotsTag"
+          webotsBaseUrl="https://github.com/$webotsRepository/releases/download/$webotsTag"
         fi
+
         if [ '${{ runner.os }}' = 'Linux' ]; then
           webotsCachePath="$HOME/cache/webots"
           webotsHome="$HOME/webots"
@@ -85,6 +91,7 @@ runs:
         echo "binDir=${webotsBinDir}" >> $GITHUB_OUTPUT
         echo "bin=${webotsBin}" >> $GITHUB_OUTPUT
         echo "pkgName=$pkgName" >> $GITHUB_OUTPUT
+        echo "cacheKey=$cacheKey" >> $GITHUB_OUTPUT
         echo "baseUrl=$webotsBaseUrl" >> $GITHUB_OUTPUT
         echo "RUN_WEBOTS=$webotsBashCmd" >> $GITHUB_ENV
         echo "LIBGL_ALWAYS_SOFTWARE=true" >> $GITHUB_ENV
